@@ -1,0 +1,25 @@
+http://www.driveronline.org/bbs/view.asp?tb=ndis&GotoPage=1&s_bulu=&s_key=&no=221
+TDI 영역과 NDIS 영역은 서로 다른 레이어 입니다.
+윈도우에서의 Network Layer는 간단히 아래와 같이 구성되어 있습니다.
+
+ SOCKET
+      |
+ TDI Client
+      |
+ TDI Filter (Optional : 개발자가 만들어 중간에 끼어 넣을 수 잇음)
+      |
+ TDI TransPort
+      |
+ NDIS Protocol Driver - Protocol Driver(개발자가 만들어 추가하면 수평으로 추가되어짐)
+      |
+ NDIS Intermediate Driver (Optional : 개발자가 만들어 중간에 끼어 넣을 수 있음)
+      |
+ NDIS Miniport Driver
+ 
+Windows 의 Tcpip 드라이버는 위 레이어중 TDI Transport 와 NDIS Protcol Driver의 결합으로 만들어진 드라이버입니다.
+
+패킷을 캡쳐하기 위해서 TDI Filter 를 개발하신다면 여기서 얻을수 있는 것은 IP, Port, Application Protocol(TCP 이후의 데이터)를 얻을 수 있으며, 모니터링,변조,차단 등을 하실 수 있습니다.
+
+NDIS Protocol Driver 를 개발하신다면 Ethernet Header, IP Header, TCP Header, App Protocol 까지 모든 Raw Packet 에 대한 정보를 얻을 수 있습니다. (직접적인 변조,차단은 할 수 없습니다. 이를 위해서는 NDIS Intermediate Driver 나 NDIS Hook Driver 혹은 WFP 드라이버를 개발하셔야 합니다.)
+
+NdisProt 5x 는 당연히 패킷을 캡쳐할 수 있습니다. 님께서 어떻게 하셨는지 모르는 상황이라 답변을 드리기 어렵네요.
