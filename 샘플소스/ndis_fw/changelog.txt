@@ -1,0 +1,40 @@
+This is changelog for version 1.01 of ndis_fw
+
+
+2003-06-11
+
+* ndis_hk\hooked_fn.c: fixed bug with BSOD on XP/2003 startup
+
+Thanks to OlegP
+
+
+2003-05-21: new version released!
+
+What's new? Not so much. I tried to make ndis_hk driver as generic hooking 
+engine. Filter drivers can attach to hooking driver several times using
+"layered" architecture.
+
+A lot of changes in ndis_hk.
+
+Few changes in ndis_flt. One of the most important thing is ability to
+send network packets to network or to TCP/IP protocol driver. As example
+TCP RST on DENY can be sent. See ndis_flt\packet.c
+
+Thanks to Jan, Igor and all who interested in this project!
+
+
+This is changelog for version 1.0 of ndis_fw
+
+
+2003-01-09
+
+* install_*.reg: fixed STUPID bug with driver name in registry. Thanks to
+Moonchang Chae;
+
+* ndis_hk\hooked_fn.c: fixed bug with resources leak on NdisSendPackets.
+Thanks to Big Boss;
+
+* ndis_flt\flt_rule.c: fixed bug with network mask processing. Before it
+correctly worked only /0, /16, /24, /32 masks. Thanks to Junhee Shin.
+
+2002-12-15: Initial release.

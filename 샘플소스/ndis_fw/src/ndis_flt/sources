@@ -1,0 +1,14 @@
+TARGETNAME=ndis_flt
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+
+USER_INCLUDES=..
+
+SOURCES=    filter.c \
+			flt_rule.c \
+			log.c \
+			ndis_flt.c \
+			time.c \
+			packet.c \
+			..\memtrack.c \
+			..\sock.c
