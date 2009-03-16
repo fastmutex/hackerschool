@@ -1,0 +1,22 @@
+First Struct: 
+
+typedef FORWARD_ACTION (*IPPacketFirewallPtr)(
+	VOID **pData, 				//can be pMdl or pRcvBuf
+	UINT RecvInterfaceIndex, 	//Received Data
+	UINT *pSendInterfaceIndex, //Index where data is sent
+	UCHAR *pDestinationType,   //Can be Local Network, Remote, Broadcast, Multicast.
+	VOID *pContext, 		   //Points to _FIREWALL_CONTEXT_T
+	UINT ContextLength,        //sizeof(FIREWALL_CONTEXT_T)
+	struct IPRcvBuf **pRcvBuf
+);
+
+Second Struct:
+_IP_SET_FIREWALL_HOOK_INFO {
+	IPPacketFirewallPtr FirewallPtr; // Packet filter callout.
+	UINT Priority; 					// Priority of the hook
+	BOOLEAN Add; 					// if TRUE then ADD else DELETE
+} IP_SET_FIREWALL_HOOK_INFO, *PIP_SET_FIREWALL_HOOK_INFO;
+
+
+#define IOCTL_IP_SET_FIREWALL_HOOK \
+	_IP_CTL_CODE(12, METHOD_BUFFERED, FILE_WRITE_ACCESS)

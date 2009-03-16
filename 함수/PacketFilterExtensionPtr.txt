@@ -1,0 +1,112 @@
+PacketFilterExtensionPtr
+typedef  PF_FORWARD_ACTION 
+(*PacketFilterExtensionPtr)(
+  IN unsigned char *PacketHeader,
+  IN unsigned char *Packet, 
+  IN unsigned int PacketLength, 
+  IN unsigned int RecvInterfaceIndex, 
+  IN unsigned int SendInterfaceIndex, 
+  IN IPAddr RecvLinkNextHop, 
+  IN IPAddr SendLinkNextHop 
+  ); 
+
+ 
+
+
+PacketFilterExtensionPtr 데이터 타입은 필터 훅 콜백 함수를 가리킨다.(point to). 이 함수는 그것에 통과된 패킷들을 처리하고 패킷을 보낼것인지 드랍할 것인지 또는 패킷들을 더 멀리 처리하기 위해서 IP 필터 드라이버를 허락할 할 것인지를 결정한다. 
+
+매개변수 
+
+
+PacketHeader 
+패킷의 IP 헤저에 대한 포인터. 필터 훅은 IPHeader 구조체를 가리키는 PacketHeader 에 대한 정보를 cast 한다. 
+
+Packet 
+필터 훅이 수신하는 패킷에 있는 정보를 포함하는 버퍼에 대한 포인터. 이 버퍼는 PacketHeader에 의해서 가리켜진 IP 헤더를 포함하지 않는다. 
+
+PacketLength 
+IP 패킷에 있는 정보의 바이트 크기. 이 크기는 IP 헤더의 크기를 포함하지 않는다. 
+
+RecvInterfaceIndex 
+패킷이 도착했던 인터페이스에 대한 인텍스 넘버. 필터 훅은 패킷을 수신했던 특정한 인터페이스 아답터를 식별하기 위해서 이 인덱스 넘버를 사용한다. 전송된 패킷을 위해서, 이 파라미터는 INVALID_PF_IF_INDEX 로 설정되고 RecvLinkNextHop 에 있는 정보는 무의미하다. 
+
+SendInterfaceIndex 
+패킷을 전송될 인터페이스 아답터에 대한 인덱스 넘버. 만약 패킷이 라우트될 인터페이스에 관한 정보가 요구된다면, 필터 훅은 Simple Network Management Protocol (SNMP)을 통해서 라우팅 테이블에 쿼리할 수 있다. 수신된 패킷들에 대해서, 이 파라미터는 INVALID_PF_IF_INDEX 을 설정하고 SendLinkNextHop 에 있는 정보는 무의미하다. 
+
+RecvLinkNextHop 
+만약 인터페이스 아답터가 point to multiple-point 인터페이스라면, 패킷을 수신했던 인터페이스 아답터에 대한 IP 주소; 그렇지않으면 이 파라미터는 ZERO_PF_IP_ADDR로 설정한다. 
+
+SendLinkNextHop 
+만약 인터페이스 아답터가 point to multiple-point 인터페이스라면, 패킷을 전송할 인터페이스 아답터에 대한 IP 주소; 그렇지않으면 이 파라미터는 ZERO_PF_IP_ADDR로 설정한다. 
+리턴값 
+
+PF_FORWARD_ACTION 열거로부터 아래의 값들중의 하나를 리턴한다.: 
+
+
+PF_FORWARD 
+IP 필터 드라이버를 위해서 IP 스택에 대한 보내는(forward) 응답으로 즉시 리턴할 것을 지정한다. 만약 패킷의 목적지가 다른 컴퓨터이고 라우팅이 가능하다면, IP는 로컬 패킷에 대한 packet up 스택을 보내거나 패킷을 라우트한다.(??) 
+
+PF_DROP 
+IP 필터 드라이버를 위해서 IP 스택에 대한 드랍(drop) 응답으로 즉시 리턴할 것을 지정한다. IP 는 패킷을 드랍해야한다. 
+
+PF_PASS 
+패킷을 처리하고 IP스택에 대한 응답으로 결과를 리턴하기 위한 IP 필터 드라이버를 지정한다. 만약 그것이 패킷을 처리하지 말아야 한다는것이 결정되었다면, 필터 훅은 통과(pass)응답을 리턴한다. 
+주석 
+
+만약 필터 훅이 통과(pass) 응답을 리턴한다면, IP 필트 드라이버는 패킷을 처리한다. 이런 경우에, 유저-모드 어플리케이션은 패킷 필터링 어플리케이션 프로그래밍 인터페이스(API)(iphlpapi.lib)를 통해서 패킷 필터링을 제어할 수 있다. 이 API는 IP 패킷을 위한 입출력 필터들을 생성하고 관리하기 위해서 사용될 수 있다. 각각의 IP 아답터인터페이스는 그것에 연관된 하나이상의 필터들을 가질 수 있다. 필터들은 근원지와 목적지 주소들, 주소 마스크와 포트, 프로토콜 식별자를 포함할 수 있다. 이 API 에 관한 더 많은 정보는 Platform SDK에서 언급한다. 
+
+IP 패킷 드라이버는 IPHeader 구조체에 IP 헤더 정보를 통과시킬 수 있다. 아래의 섹션은 IPHeader를 설명한다. 
+
+IPHeader 
+
+PacketHeader 파라미터가 가리키는 정보의 구조체는 일반적으로 IPHeader 구조체로서 정의 된다. IPHeader 는 패킷에 관한 세부사항들을 제공한다. IPHeader 는 아래와 같은 정의된다.: 
+
+typedef struct IPHeader {
+    UCHAR     iph_verlen;     // Version and length 
+    UCHAR     iph_tos;        // Type of service 
+    USHORT    iph_length;     // Total datagram length 
+    USHORT    iph_id;         // Identification 
+    USHORT    iph_offset;     // Flags, fragment offset 
+    UCHAR     iph_ttl;        // Time to live 
+    UCHAR     iph_protocol;   // Protocol 
+    USHORT    iph_xsum;       // Header checksum 
+    ULONG     iph_src;        // Source address 
+    ULONG     iph_dest;       // Destination address 
+} IPHeader;
+
+ 
+
+
+이 구조체의 멤버들은 아래의 정보를 포함한다: 
+
+
+iph_verlen 
+패킷의 버젼과 길이를 지정한다. 
+
+iph_tos 
+패킷을 위한 서비스 타입을 지정한다. 
+
+iph_length 
+패킷의 바이트 크기. 
+
+iph_id 
+패킷의 식별을 지정한다. 
+
+iph_offset 
+패킷에 대한 플래그와 단편 옵션을 지정한다. 
+
+iph_ttl 
+패킷의 time to live (TTL)을 지정한다. TLL은 IP를 사용하는 네트워크 위로 보내져야할 패킷내의 영역을 지정하는 0~255까지의 값이다. 영역은 패킷의 목적지가 얼마나 로컬 또는 원격지의 기간에 정의괸다.(??) 각각의 라우터는 TTL을 하나씩 감소시킨다. TTL이 미리 정해진 하위의 한계에 도달했을 때, 라우터는 패킷을 멀리 던진다.(??). 
+
+iph_protocol 
+패킷에대한 프로토콜을 지정한다. 
+
+iph_xsum 
+패킷에 대한 헤더책섬을 지정한다. 
+
+iph_src 
+패킷에 대한 컴퓨터의 근원지 IP 주소를 지정한다. 
+
+iph_dest 
+패킷에 대한 컴퓨터의 목적지 IP 주소를 지정한다. 
+ 
